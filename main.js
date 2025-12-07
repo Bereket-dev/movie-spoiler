@@ -607,75 +607,119 @@ async function createMeme() {
   const posterUrl = resultPoster.src;
   const img = await loadImageSafely(posterUrl);
 
-  // Clear canvas
-  memeCtx.clearRect(0, 0, 1080, 1080);
+  // 1. DYNAMIC CANVAS SIZING (Crucial for Quality)
+  // Instead of forcing 1080x1080, we match the image's aspect ratio
+  // checking against a max width to keep performance high.
+  const maxWidth = 1080;
+  const scale = Math.min(1, maxWidth / img.width);
+  
+  memeCanvas.width = img.width * scale;
+  memeCanvas.height = img.height * scale;
+  
+  const ctx = memeCanvas.getContext('2d');
 
-  // Draw pure image
-  memeCtx.drawImage(img, 0, 0, 1080, 1080);
+  // Clear and Draw Image
+  ctx.clearRect(0, 0, memeCanvas.width, memeCanvas.height);
+  ctx.drawImage(img, 0, 0, memeCanvas.width, memeCanvas.height);
 
-  // Clean text - remove HTML tags, strip asterisks
-  const cleanText = (window.lastSpoiler || "")
-    .replace(/<[^>]*>/g, "") // Remove HTML tags
-    .replace(/\*/g, "") // Remove asterisks
-    .trim();
+  // 2. TEXT PROCESSING
+  let rawText = (window.lastSpoiler || "")
+    .replace(/<[^>]*>/g, "")
+    .replace(/\*/g, "")
+    .trim()
+    .toUpperCase(); // Memes are always Uppercase
 
-  window.lastSpoilerClean = cleanText;
-
-  // Text settings for optimal visibility
-  const fontSize = 56; // Larger for better visibility
-  const lineHeight = 75; // Better spacing between lines
-  const maxWidth = 1000; // Slightly narrower for readability
-  const topPadding = 80; // Space from top
-  const letterSpacing = 1; // Small letter spacing for readability
-
-  // Set font with letter spacing simulation
-  memeCtx.font = `bold ${fontSize}px Impact, Arial Black, sans-serif`;
-  memeCtx.textAlign = "center";
-  memeCtx.textBaseline = "top";
-
-  // Wrap text with optimal settings
-  const lines = wrapText(cleanText, maxWidth, fontSize);
-
-  // Calculate starting position (top of canvas)
-  let currentY = topPadding;
-
-  // Draw each line with outline for maximum visibility
-  lines.forEach((line, i) => {
-    const x = 540; // Center
-
-    // Draw thick black outline (3 passes for extra visibility)
-    memeCtx.strokeStyle = "#000000";
-    memeCtx.lineWidth = 8;
-    memeCtx.lineJoin = "round";
-
-    // Multiple strokes for thicker outline
-    memeCtx.strokeText(line, x, currentY);
-    memeCtx.strokeText(line, x, currentY);
-
-    // Draw white fill text
-    memeCtx.fillStyle = "#FFFFFF";
-    memeCtx.fillText(line, x, currentY);
-
-    // Move to next line
-    currentY += lineHeight;
-  });
-
-  // Optional: Add small subtle watermark at bottom
-  if (window.lastCategory && lines.length < 4) {
-    memeCtx.font = "bold 28px Arial";
-    memeCtx.fillStyle = "rgba(255, 255, 255, 0.6)";
-    memeCtx.strokeStyle = "rgba(0, 0, 0, 0.6)";
-    memeCtx.lineWidth = 4;
-    memeCtx.strokeText(`#${window.lastCategory.fullTitle}`, 540, 1000);
-    memeCtx.fillText(`#${window.lastCategory.fullTitle}`, 540, 1000);
+  // Check if user wants Top/Bottom split (e.g. "Here's to | The best memes")
+  let topText = "";
+  let bottomText = "";
+  
+  if (rawText.includes("|")) {
+    const parts = rawText.split("|");
+    topText = parts[0].trim();
+    bottomText = parts.slice(1).join(" ").trim();
+  } else {
+    // If no split, default to top (like the Gatsby meme) or bottom
+    // For Gatsby style, usually text is top and bottom, but we'll default Top here
+    topText = rawText; 
   }
 
-  // Display meme
+  // 3. FONT CONFIGURATION
+  // Base font size on canvas width (approx 10% of width is standard meme size)
+  const baseFontSize = memeCanvas.width * 0.10; 
+  ctx.textAlign = "center";
+  ctx.textBaseline = "top";
+  ctx.lineJoin = "round"; // smooths the outline spikes
+
+  // 4. DRAWING FUNCTION (Reusable for Top and Bottom)
+  const drawMemeText = (text, yPos, isBottom = false) => {
+    if (!text) return;
+
+    let fontSize = baseFontSize;
+    ctx.font = `900 ${fontSize}px Impact, "Arial Black", sans-serif`;
+
+    // Dynamic max width for text wrapping
+    const maxTextWidth = memeCanvas.width * 0.90; 
+    let lines = wrapText(ctx, text, maxTextWidth);
+
+    // Auto-shrink font if there are too many lines (keeps visibility high)
+    while (lines.length > 2 && fontSize > 20) {
+      fontSize -= 5;
+      ctx.font = `900 ${fontSize}px Impact, "Arial Black", sans-serif`;
+      lines = wrapText(ctx, text, maxTextWidth);
+    }
+
+    // Adjust Y position for Bottom text (draw upwards from bottom)
+    let currentY = isBottom 
+      ? memeCanvas.height - (lines.length * (fontSize * 1.2)) - 20 
+      : yPos;
+
+    // Drawing Loop
+    lines.forEach(line => {
+      const x = memeCanvas.width / 2;
+
+      // THICK BLACK OUTLINE (The secret to meme visibility)
+      ctx.strokeStyle = "black";
+      ctx.lineWidth = fontSize * 0.15; // Stroke scales with font
+      ctx.strokeText(line, x, currentY);
+
+      // WHITE FILL
+      ctx.fillStyle = "white";
+      ctx.fillText(line, x, currentY);
+
+      currentY += fontSize * 1.2; // Line height
+    });
+  };
+
+  // Render the text
+  drawMemeText(topText, 20, false); // Top Text
+  drawMemeText(bottomText, 0, true); // Bottom Text
+
+  // 5. FINALIZE
   const memeData = memeCanvas.toDataURL("image/png");
   memePreviewImg.src = memeData;
   memePreviewImg.style.display = "block";
-  document.getElementById("resultPoster").style.display = "none";
-  downloadMemeBtn.style.display = "inline-flex";
+  if (document.getElementById("resultPoster")) document.getElementById("resultPoster").style.display = "none";
+  if (downloadMemeBtn) downloadMemeBtn.style.display = "inline-flex";
+}
+
+// Helper: Simple text wrapper
+function wrapText(ctx, text, maxWidth) {
+  const words = text.split(" ");
+  let lines = [];
+  let currentLine = words[0];
+
+  for (let i = 1; i < words.length; i++) {
+    let word = words[i];
+    let width = ctx.measureText(currentLine + " " + word).width;
+    if (width < maxWidth) {
+      currentLine += " " + word;
+    } else {
+      lines.push(currentLine);
+      currentLine = word;
+    }
+  }
+  lines.push(currentLine);
+  return lines;
 }
 
 // Enhanced wrap function with better letter spacing consideration
