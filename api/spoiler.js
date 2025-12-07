@@ -39,6 +39,10 @@ export default async function handler(req, res) {
     `;
 
     const result = await model.generateContent(prompt);
+    if (!result.ok) {
+      throw new Error(`TMDB API responded with status ${response.status}`);
+    }
+
     const spoiler = result.response.text();
 
     return res.status(200).json({ text: spoiler });
