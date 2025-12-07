@@ -399,7 +399,6 @@ async function spin() {
 
       generateSpoiler(selectedMovie, finalCategory)
         .then((spoiler) => {
-          console.log("generateSpoiler returned:", spoiler);
           // Guard against undefined / unexpected types
           if (!spoiler) {
             const fb = generateFakeSpoiler(selectedMovie, selectedIndex);
@@ -677,6 +676,11 @@ async function createMeme() {
   const img = await loadImageSafely(posterUrl);
 
   // Draw image
+  const maxWidth = 1080;
+  const scale = Math.min(1, maxWidth / img.width);
+
+  memeCanvas.width = img.width * scale;
+  memeCanvas.height = img.width * scale;
   memeCtx.drawImage(img, 0, 0, memeCanvas.width, memeCanvas.height);
 
   // MEME FONT SETTINGS
@@ -712,7 +716,6 @@ async function createMeme() {
   const memeData = memeCanvas.toDataURL("image/png");
   memePreviewImg.src = memeData;
   downloadMemeBtn.style.display = "inline-flex";
-  memeCanvas.style.display = "block";
 }
 
 // helper: function
