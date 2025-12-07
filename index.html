@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Spoiler Roulette — Meme Generator</title>
+    <meta
+      name="description"
+      content="Spin for a hilarious fake movie spoiler and generate a downloadable meme."
+    />
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/fontawesome.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/solid.min.css"
+    />
+  </head>
+
+  <body>
+    <div class="container">
+      <header>
+        <div class="logo"><i class="fas fa-film logo-icon"></i></div>
+        <h1>Spoiler Roulette</h1>
+        <p class="tagline">
+          Spin for a hilarious fake spoiler and generate a meme. Lightweight —
+          no external API required.
+        </p>
+
+        <div class="api-badge">
+          <i class="fas fa-bolt"></i>
+          <span>Local Demo Movies • Fast • For fun only</span>
+        </div>
+      </header>
+
+      <div class="ad-placeholder" aria-hidden="true">
+        <div class="ad-label">Advertisement</div>
+        <div>Support the creator — grab popcorn 🍿</div>
+      </div>
+
+      <div class="main-content">
+        <div class="game-section">
+          <div class="movie-selector">
+            <h2 class="section-title"><i class="fas fa-fire"></i> Movies</h2>
+
+            <div class="movie-grid" id="movieGrid">
+              <!-- populated by JS -->
+            </div>
+          </div>
+
+          <div class="wheel-container" aria-hidden="false">
+            <canvas id="wheelCanvas" width="400" height="400"></canvas>
+
+            <div class="wheel-center">
+              <i
+                class="fas fa-question"
+                style="color: #fff; font-size: 1.5rem"
+              ></i>
+            </div>
+
+            <div id="spinInfoText" class="spin-info">
+              <span id="spinInfoMessage"
+                >Spin the wheel to get a surprise!</span
+              >
+              <button id="closeSpinInfo" class="close-btn">&times;</button>
+            </div>
+          </div>
+
+          <div class="spin-button-container">
+            <button id="spinButton" disabled>
+              <div
+                class="loading"
+                style="display: inline-block; margin-right: 10px"
+              ></div>
+              LOADING...
+            </button>
+          </div>
+        </div>
+
+        <div class="results-section">
+          <div class="result-display" id="resultDisplay">
+            <div class="result-placeholder" id="resultPlaceholder">
+              <i class="fas fa-theater-masks"></i>
+              <p>
+                Select a movie and spin the wheel to create a fake spoiler meme.
+              </p>
+            </div>
+
+            <div
+              class="spoiler-result"
+              id="spoilerResult"
+              style="display: none"
+            >
+              <div class="result-movie" id="resultMovie">
+                <img
+                  id="resultPoster"
+                  class="result-poster"
+                  src=""
+                  alt="Poster"
+                />
+                <img
+                  id="resultMemePreview"
+                  class="result-meme"
+                  src=""
+                  alt="Meme Preview"
+                  style="display: none"
+                />
+                <span id="resultMovieName">Movie Name</span>
+              </div>
+
+              <div class="spoiler-text" id="spoilerText">
+                Your fake spoiler appears here.
+              </div>
+
+              <div class="spoiler-warning">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>REMEMBER: This is a 100% FAKE spoiler for fun only!</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="share-section" id="shareControls" style="display: none">
+            <h3 class="share-title">Create & Share Meme</h3>
+            <div class="share-buttons">
+              <button class="share-button copy" id="generateMemeBtn">
+                <i class="fas fa-image"></i> Generate Meme
+              </button>
+              <button
+                class="share-button copy"
+                id="downloadMemeBtn"
+                style="display: none"
+              >
+                <i class="fas fa-download"></i> Download Meme
+              </button>
+              <button class="share-button twitter" id="shareTweetBtn">
+                <i class="fab fa-twitter"></i> Tweet Meme
+              </button>
+              <button class="share-button facebook" id="shareFacebookBtn">
+                <i class="fab fa-facebook-f"></i> Share on Facebook
+              </button>
+              <button class="share-button reddit" id="shareRedditBtn">
+                <i class="fab fa-reddit-alien"></i> Share on Reddit
+              </button>
+              <button class="share-button telegram" id="shareTelegramBtn">
+                <i class="fab fa-telegram-plane"></i> Share on Telegram
+              </button>
+              <button class="share-button copy" id="copySpoilerBtn">
+                <i class="fas fa-copy"></i> Copy Spoiler
+              </button>
+            </div>
+
+            <!-- hidden canvas for 1080x1080 meme -->
+            <canvas
+              id="memeCanvas"
+              width="1080"
+              height="1080"
+              style="display: none"
+            ></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="trending-section" aria-hidden="true">
+        <div class="trending-header">
+          <h2 class="section-title">
+            <i class="fas fa-chart-line"></i> Trending
+          </h2>
+        </div>
+        <p style="text-align: center; color: #b8c1ec; margin: 12px 0">
+          Demo list — click any poster to select it for the wheel.
+        </p>
+        <div class="trending-movies" id="trendingMovies">
+          <!-- small list replicated for convenience -->
+        </div>
+      </div>
+
+      <div class="ad-placeholder" aria-hidden="true">
+        <div class="ad-label">Advertisement</div>
+        <div>Enjoy responsibly — this is satire.</div>
+      </div>
+
+      <footer>
+        <div class="tmdb-attribution">
+          <i class="fab fa-tmdb" style="font-size: 1.5rem"></i>
+          <span>Demo content only — for fun.</span>
+        </div>
+        <p>Spoiler Roulette © 2025 • All spoilers are fictional.</p>
+      </footer>
+    </div>
+
+    <script src="main.js" defer></script>
+  </body>
+</html>
