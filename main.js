@@ -362,7 +362,7 @@ async function spin() {
       if (!finalCategory || selectedIndex == -1) {
         // Fallback calculation if above didn't work
         const normalizedRotation = currentRotation % (2 * Math.PI);
-        const selectedIndex = Math.floor(
+        selectedIndex = Math.floor(
           (segmentCount - normalizedRotation / segmentAngle) % segmentCount
         );
         finalCategory = wheelData[selectedIndex];
@@ -398,48 +398,6 @@ function done(spoiler) {
 }
 
 // --------------------------------------------------
-const spoilerTemplates = {
-  "🔍 Overly Literal": [
-    "Man returns jewelry to volcano. Two trips.",
-    "Fish dad travels ocean because son can't remember directions.",
-    "Widower flies house with balloons. Still no WiFi.",
-  ],
-  "🎬 Out of Context": [
-    "Man in suit dances with cartoon animals in forest.",
-    "Rich guy dresses as bat to fight a clown.",
-    "High school teacher cooks blue candy in classroom.",
-  ],
-  "📱 Modern Tech": [
-    "Could've shared location instead of sending ravens.",
-    "Dating app would've solved the whole ballroom mystery.",
-    "Two hours of problems fixed by checking Google Maps.",
-  ],
-  "👶 Child's Explanation": [
-    "Fish dad gets lost. Other fish helps. Finds son.",
-    "Lady sleeps for long time. Prince wakes her up.",
-    "Big robot fights other robots. They become friends.",
-  ],
-  "😤 Petty Complaint": [
-    "My boat was fine until that iceberg showed up.",
-    "She left a mess of straw and sticks everywhere.",
-    "I offered a golden ticket and he brought his grandpa.",
-  ],
-  "🔄 Unnecessary Sequel": [
-    "Part 2: He learns to properly share the door.",
-    "Sequel: The ring's cousin visits for revenge.",
-    "Follow-up: They argue about thermostat settings in space.",
-  ],
-  "📊 Corporate Jargon": [
-    "Leveraged core competencies to sunset the competition.",
-    "Synergized hero paradigm shifts the villain matrix.",
-    "Optimized scalable solutions for Middle-earth deliverables.",
-  ],
-  "📰 Clickbait": [
-    "10 Secrets Your Wizard School Isn't Telling You! #7 is Illegal!",
-    "This Iceberg Did WHAT? You Won't Believe The Aftermath!",
-    "One Weird Trick to Defeat Sauron! Dark Lords HATE This!",
-  ],
-};
 
 function generateFakeSpoiler(movie) {
   const movieTitle = movie.title || "this movie";
