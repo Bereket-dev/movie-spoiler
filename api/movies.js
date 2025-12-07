@@ -5,37 +5,22 @@ export default async function handler(req, res) {
   try {
     const timeWindow = reqTimeWindow;
 
-    if (!TMDB_API_KEY) {
-      return new Response(
-        JSON.stringify({ error: "TMDB API key not configured." }),
-        { status: 500, headers: { "Content-Type": "application/json" } }
-      );
-    }
+    if (!TMDB_API_KEY)
+      throw new Error({ error: "TMDB API key not configured." });
 
     const url = `https://api.themoviedb.org/3/trending/movie/${timeWindow}?api_key=${TMDB_API_KEY}`;
 
     const response = await fetch(url);
     if (!response.ok) {
-      return new Response(
-        JSON.stringify({
-          error: `TMDB API responded with status ${response.status}`,
-        }),
-        { status: 500, headers: { "Content-Type": "application/json" } }
-      );
+      throw new Error(`TMDB API responded with status ${response.status}`);
     }
 
     const data = await response.json();
     // data.results is an array of trending movies. :contentReference[oaicite:1]{index=1}
 
-    return new Response(JSON.stringify({ results: data.results }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
+    res.status(200).json({ results: data.results });
   } catch (error) {
-    console.error("Error fetching trending movies:", err);
-    return new Response(
-      JSON.stringify({ error: "Failed to fetch trending movies." }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
-    );
+    console.error("Error fetching trending movies:", error);
+    res.status(500).json({ error: "Failed to fetch trending movies." });
   }
 }
