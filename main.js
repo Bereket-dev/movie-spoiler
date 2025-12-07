@@ -365,9 +365,22 @@ async function spin() {
         finalCategory = wheelData[selectedIndex];
       }
 
-      generateSpoiler(selectedMovie, finalCategory).then((spoiler) => {
-        done(spoiler);
-      });
+      generateSpoiler(selectedMovie, finalCategory)
+        .then((spoiler) => {
+          console.log("generateSpoiler returned:", spoiler);
+          // Guard against undefined / unexpected types
+          if (!spoiler) {
+            const fb = generateFakeSpoiler(selectedMovie, selectedIndex);
+            console.warn("Spoiler was falsy; using fallback:", fb);
+            return done(fb);
+          }
+          return done(spoiler);
+        })
+        .catch((err) => {
+          console.error("generateSpoiler promise rejected:", err);
+          const fb = generateFakeSpoiler(selectedMovie, selectedIndex);
+          done(fb);
+        });
     }
   }
 
