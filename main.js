@@ -607,48 +607,117 @@ async function createMeme() {
   const posterUrl = resultPoster.src;
   const img = await loadImageSafely(posterUrl);
 
+  // Clear canvas
   memeCtx.clearRect(0, 0, 1080, 1080);
+
+  // Draw pure image
   memeCtx.drawImage(img, 0, 0, 1080, 1080);
 
-  // Setup text
-  memeCtx.font = "bold 50px Impact";
+  // Clean text - remove HTML tags, strip asterisks
+  const cleanText = (window.lastSpoiler || "")
+    .replace(/<[^>]*>/g, "") // Remove HTML tags
+    .replace(/\*/g, "") // Remove asterisks
+    .trim();
+
+  window.lastSpoilerClean = cleanText;
+
+  // Text settings for optimal visibility
+  const fontSize = 56; // Larger for better visibility
+  const lineHeight = 75; // Better spacing between lines
+  const maxWidth = 1000; // Slightly narrower for readability
+  const topPadding = 80; // Space from top
+  const letterSpacing = 1; // Small letter spacing for readability
+
+  // Set font with letter spacing simulation
+  memeCtx.font = `bold ${fontSize}px Impact, Arial Black, sans-serif`;
   memeCtx.textAlign = "center";
-  memeCtx.textBaseline = "middle";
+  memeCtx.textBaseline = "top";
 
-  // Clean text for canvas
-  const text =
-    window.lastSpoilerClean ||
-    window.lastSpoiler?.replace(/<[^>]*>/g, "") ||
-    "";
+  // Wrap text with optimal settings
+  const lines = wrapText(cleanText, maxWidth, fontSize);
 
-  // Draw text with black outline and white fill
-  const lines = wrap(text, 920);
-  const lineHeight = 70;
-  const centerY = 540;
+  // Calculate starting position (top of canvas)
+  let currentY = topPadding;
 
+  // Draw each line with outline for maximum visibility
   lines.forEach((line, i) => {
-    const y =
-      centerY -
-      (lines.length * lineHeight) / 2 +
-      i * lineHeight +
-      lineHeight / 2;
+    const x = 540; // Center
 
-    // Black outline
-    memeCtx.strokeStyle = "black";
-    memeCtx.lineWidth = 6;
-    memeCtx.strokeText(line, 540, y);
+    // Draw thick black outline (3 passes for extra visibility)
+    memeCtx.strokeStyle = "#000000";
+    memeCtx.lineWidth = 8;
+    memeCtx.lineJoin = "round";
 
-    // White text
-    memeCtx.fillStyle = "white";
-    memeCtx.fillText(line, 540, y);
+    // Multiple strokes for thicker outline
+    memeCtx.strokeText(line, x, currentY);
+    memeCtx.strokeText(line, x, currentY);
+
+    // Draw white fill text
+    memeCtx.fillStyle = "#FFFFFF";
+    memeCtx.fillText(line, x, currentY);
+
+    // Move to next line
+    currentY += lineHeight;
   });
 
-  // Show meme
+  // Optional: Add small subtle watermark at bottom
+  if (window.lastCategory && lines.length < 4) {
+    memeCtx.font = "bold 28px Arial";
+    memeCtx.fillStyle = "rgba(255, 255, 255, 0.6)";
+    memeCtx.strokeStyle = "rgba(0, 0, 0, 0.6)";
+    memeCtx.lineWidth = 4;
+    memeCtx.strokeText(`#${window.lastCategory.fullTitle}`, 540, 1000);
+    memeCtx.fillText(`#${window.lastCategory.fullTitle}`, 540, 1000);
+  }
+
+  // Display meme
   const memeData = memeCanvas.toDataURL("image/png");
   memePreviewImg.src = memeData;
   memePreviewImg.style.display = "block";
   document.getElementById("resultPoster").style.display = "none";
   downloadMemeBtn.style.display = "inline-flex";
+}
+
+// Enhanced wrap function with better letter spacing consideration
+function wrapText(text, maxWidth, fontSize) {
+  const ctx = memeCtx;
+  const words = text.split(" ");
+  const lines = [];
+  let currentLine = "";
+
+  // Estimate average character width for this font size
+  const avgCharWidth = fontSize * 0.6;
+  const spaceWidth = ctx.measureText(" ").width;
+
+  for (let i = 0; i < words.length; i++) {
+    const word = words[i];
+    const testLine = currentLine ? currentLine + " " + word : word;
+    const testWidth = ctx.measureText(testLine).width;
+
+    if (testWidth > maxWidth && currentLine !== "") {
+      lines.push(currentLine);
+      currentLine = word;
+    } else {
+      currentLine = testLine;
+    }
+  }
+
+  if (currentLine) {
+    lines.push(currentLine);
+  }
+
+  // Limit to maximum 4 lines for top placement
+  if (lines.length > 4) {
+    lines.splice(3); // Keep only first 3 lines
+    lines[2] = lines[2].substring(0, lines[2].lastIndexOf(" ")) + "...";
+  }
+
+  return lines;
+}
+
+// Keep your existing wrap function for compatibility
+function wrap(text, maxW) {
+  return wrapText(text, maxW, 50);
 }
 
 function wrap(text, maxW) {
