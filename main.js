@@ -118,10 +118,11 @@ async function generateSpoiler(movie, category) {
     }
 
     const data = await response.json();
-    return data.spoiler;
+    return data.text;
   } catch (err) {
+    const fakeResponse = fakeSpoiler(movie);
     console.error("Error generating spoiler:", err);
-    return "Unable to generate spoiler.";
+    return fakeResponse;
   }
 }
 

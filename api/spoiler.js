@@ -4,11 +4,15 @@ export const config = {
   runtime: "edge", // best performance on Vercel
 };
 
-export default async function handler(req) {
+export default async function handler(req, res) {
+  const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
   try {
+    if (!GEMINI_API_KEY)
+      throw new Error({ error: "TMDB API key not configured." });
+
     const { movie, category } = await req.json(); // movie data + wheel category
 
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
@@ -37,12 +41,10 @@ export default async function handler(req) {
     const result = await model.generateContent(prompt);
     const spoiler = result.response.text();
 
-    return new Response(JSON.stringify({ spoiler }), {
-      headers: { "Content-Type": "application/json" },
-    });
+    return res.status(200).json({ text: spoiler });
   } catch (err) {
-    return new Response(JSON.stringify({ error: String(err) }), {
-      status: 500,
-    });
+    return res
+      .status(500)
+      .json({ error: "Failed to get ai generated spoiler!" });
   }
 }
