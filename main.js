@@ -394,7 +394,7 @@ function showResult(spoiler) {
   spoilerResult.style.display = "block";
   shareControls.style.display = "block";
 
-  spoiler = String(spoiler || "");
+  spoiler = String(spoiler);
   // Clean the spoiler text before displaying
   let cleanSpoiler = spoiler
     .replace(/\*\*(.*?)\*\*/g, "$1") // Remove **bold**
@@ -631,7 +631,7 @@ async function createMeme() {
   const memeCanvas = document.getElementById("memeCanvas");
   const memeCtx = memeCanvas.getContext("2d");
 
-  const topText = String(window.lastSpoiler || "").toUpperCase();
+  const topText = String(window.lastSpoiler).toUpperCase();
   const bottomText = "ALL THE BEST MEMES"; // or second part you prefer
 
   // Load image
@@ -679,7 +679,7 @@ async function createMeme() {
 
 // helper: function
 function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
-  const words = String(text || "");
+  const words = String(text);
   let line = "";
   let cy = y;
 
