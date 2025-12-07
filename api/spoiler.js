@@ -26,14 +26,18 @@ export async function POST(req) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
+          contents: [{ role: "user", parts: [{ text: prompt }] }],
         }),
       }
     );
 
     const result = await response.json();
-    const spoiler =
-      result?.candidates?.[0]?.content?.parts?.[0]?.text || "No spoiler";
+    if (!result || !result.candidates || result.candidates.length === 0) {
+      return Response.json(
+        { error: "No spoiler generated", detail: result || "Empty response" },
+        { status: 500 }
+      );
+    }
 
     return Response.json({ spoiler });
   } catch (err) {
