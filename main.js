@@ -29,7 +29,7 @@ let selectedMovie = null;
 // --------------------------------------------------
 async function loadMovies() {
   try {
-    const res = await fetch(`/api/movies`);
+    const res = await fetch("/api/movies");
 
     const json = await res.json();
     movies = json.results.slice(0, 8);
@@ -39,7 +39,7 @@ async function loadMovies() {
     spinButton.disabled = false;
     spinButton.innerHTML = `<i class="fas fa-play"></i> SPIN`;
   } catch (err) {
-    alert("TMDB failed to load!");
+    alert("TMDB failed to load!"); // bad ux
   }
 }
 
@@ -97,6 +97,32 @@ function renderTrending() {
 
     trendingMovies.appendChild(el);
   });
+}
+
+// ai based spoiler text
+async function generateSpoiler(movie, category) {
+  try {
+    const response = await fetch("/api/spoiler", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        movie,
+        category,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch spoiler");
+    }
+
+    const data = await response.json();
+    return data.spoiler;
+  } catch (err) {
+    console.error("Error generating spoiler:", err);
+    return "Unable to generate spoiler.";
+  }
 }
 
 // --------------------------------------------------
@@ -198,7 +224,7 @@ function drawWheel(rotation = 0) {
 drawWheel();
 
 // --------------------------------------------------
-function spin() {
+async function spin() {
   if (!selectedMovie) {
     movieGrid.scrollIntoView({ behavior: "smooth", block: "center" });
     return;
@@ -210,6 +236,9 @@ function spin() {
   const duration = 3000;
   const start = performance.now();
 
+  const category = wheelItems[Math.floor(Math.random() * wheelItems.length)];
+  const spoiler = await generateSpoiler(selectedMovie, category);
+
   function anim(now) {
     const t = Math.min((now - start) / duration, 1);
     const ease = 1 - Math.pow(1 - t, 3);
@@ -217,7 +246,7 @@ function spin() {
     drawWheel(ease * 12 * Math.PI);
 
     if (t < 1) requestAnimationFrame(anim);
-    else done();
+    else done(spoiler);
   }
   requestAnimationFrame(anim);
 
@@ -233,11 +262,10 @@ function spin() {
   }, 5000);
 }
 
-function done() {
+function done(spoiler) {
   spinButton.disabled = false;
   spinButton.innerHTML = `<i class="fas fa-redo"></i> SPIN AGAIN`;
 
-  const spoiler = fakeSpoiler(selectedMovie);
   showResult(spoiler);
 }
 

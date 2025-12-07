@@ -1,5 +1,4 @@
 export default async function handler(req, res) {
-  const TMDB_API_KEY = process.env.VITE_TMDB_API_KEY;
   const reqTimeWindow = req.time || "week";
 
   if (!TMDB_API_KEY) {
@@ -10,7 +9,7 @@ export default async function handler(req, res) {
   try {
     const timeWindow = reqTimeWindow;
 
-    const url = `https://api.themoviedb.org/3/trending/movie/${timeWindow}?api_key=${TMDB_API_KEY}`;
+    const url = `https://api.themoviedb.org/3/trending/movie/${timeWindow}?api_key=${process.env.TMDB_API_KEY}`;
 
     const response = await fetch(url);
     if (!response.ok) {
