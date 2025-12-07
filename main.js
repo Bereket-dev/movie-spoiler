@@ -1,13 +1,14 @@
-const IMAGE_BASE = "https://images.weserv.nl/?url=image.tmdb.org/t/p/w500";
+const IMAGE_BASE =
+  "https://images.weserv.nl/?url=https://image.tmdb.org/t/p/w500";
 
 const wheelCanvas = document.getElementById("wheelCanvas");
-const wheelCtx = wheelCanvas.getContext("2d");
 
 const movieGrid = document.getElementById("movieGrid");
 const trendingMovies = document.getElementById("trendingMovies");
 const spinButton = document.getElementById("spinButton");
 
 // result
+const resultDisplay = document.getElementById("resultDisplay");
 const resultPlaceholder = document.getElementById("resultPlaceholder");
 const spoilerResult = document.getElementById("spoilerResult");
 const resultMovieName = document.getElementById("resultMovieName");
@@ -50,12 +51,11 @@ function renderMovies() {
   movies.forEach((m, i) => {
     const el = document.createElement("div");
     el.className = "movie-option";
+    const rating = Number(m.vote_average || 0).toFixed(1);
 
     el.innerHTML = `
       <img class="movie-poster" src="${IMAGE_BASE}${m.poster_path}">
-      <div class="movie-rating"><i class="fas fa-star"></i>${m.vote_average.toFixed(
-        1
-      )}</div>
+      <div class="movie-rating"><i class="fas fa-star"></i>${rating}</div>
       <div class="movie-name">${m.title}</div>
     `;
 
@@ -99,81 +99,6 @@ function renderTrending() {
   });
 }
 
-// ai based spoiler text
-async function generateSpoiler(movie, categoryData) {
-  try {
-    const category = categoryData.fullTitle;
-    const description = categoryData.description;
-    const response = await fetch("/api/spoiler", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ movie, category, description }),
-    });
-
-    const data = await response.json();
-    return data.spoiler;
-  } catch (err) {
-    console.error("Error generating spoiler:", err);
-    // Determine an index for the fallback generator. Prefer the category's
-    // matching wheel index, otherwise use the global `selectedIndex`.
-    const categoryIndex =
-      typeof categoryData?.fullTitle === "string"
-        ? wheelData.findIndex((w) => w.fullTitle === categoryData.fullTitle)
-        : -1;
-
-    const fallbackIndex = categoryIndex >= 0 ? categoryIndex : selectedIndex;
-    return generateFakeSpoiler(movie, fallbackIndex);
-  }
-}
-
-// --------------------------------------------------
-const spinInfo = document.getElementById("spinInfoText");
-const spinInfoMessage = document.getElementById("spinInfoMessage");
-const closeBtn = document.getElementById("closeSpinInfo");
-
-function showSpinInfo(message, duration = 2000) {
-  spinInfoMessage.textContent = message;
-  spinInfo.style.display = "flex";
-
-  // Auto hide after duration
-  setTimeout(() => {
-    spinInfo.style.display = "none";
-  }, duration);
-}
-
-closeBtn.addEventListener("click", () => {
-  spinInfo.style.display = "none";
-});
-
-// -------
-function selectMovie(m, element) {
-  selectedMovie = m;
-
-  [...movieGrid.children].forEach((el) => el.classList.remove("active"));
-  element.classList.add("active");
-
-  drawWheel(0);
-
-  [...movieGrid.children].forEach(() => {
-    wheelCanvas.scrollIntoView({ behavior: "smooth", block: "center" });
-  });
-
-  showSpinInfo(`Spin to get "${m.title}" spoiler!`, 10000);
-  resultPoster.src = `${IMAGE_BASE}${m.poster_path}`;
-}
-
-// ------------------- Wheel ------------------------
-
-function setWheelSize(newSize) {
-  wheelCanvas.width = newSize;
-  wheelCanvas.height = newSize;
-  drawWheel(); // redraw after resizing
-}
-
-// setWheelSize(600);
-
-const ctx = wheelCanvas.getContext("2d");
-// Wheel configuration with colors for better visual
 const wheelData = [
   {
     label: "🔍 Literal",
@@ -230,6 +155,80 @@ const wheelData = [
       "Tabloid sensationalism for viral shares. Number 7 will shock you!",
   },
 ];
+
+// ai based spoiler text
+async function generateSpoiler(movie, categoryData) {
+  try {
+    const category = categoryData.fullTitle;
+    const description = categoryData.description;
+    const response = await fetch("/api/spoiler", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ movie, category, description }),
+    });
+
+    const data = await response.json();
+    return data.spoiler;
+  } catch (err) {
+    console.error("Error generating spoiler:", err);
+    // Determine an index for the fallback generator. Prefer the category's
+    // matching wheel index, otherwise use the global `selectedIndex`.
+    const categoryIndex =
+      typeof categoryData?.fullTitle === "string"
+        ? wheelData.findIndex((w) => w.fullTitle === categoryData.fullTitle)
+        : -1;
+
+    const fallbackIndex = categoryIndex >= 0 ? categoryIndex : selectedIndex;
+    return generateFakeSpoiler(movie, fallbackIndex);
+  }
+}
+
+// --------------------------------------------------
+const spinInfo = document.getElementById("spinInfoText");
+const spinInfoMessage = document.getElementById("spinInfoMessage");
+const closeBtn = document.getElementById("closeSpinInfo");
+
+function showSpinInfo(message, duration = 2000) {
+  spinInfoMessage.textContent = message;
+  spinInfo.style.display = "flex";
+
+  // Auto hide after duration
+  setTimeout(() => {
+    spinInfo.style.display = "none";
+  }, duration);
+}
+
+closeBtn.addEventListener("click", () => {
+  spinInfo.style.display = "none";
+});
+
+// -------
+function selectMovie(m, element) {
+  selectedMovie = m;
+
+  [...movieGrid.children].forEach((el) => el.classList.remove("active"));
+  element.classList.add("active");
+
+  drawWheel(0);
+
+  wheelCanvas.scrollIntoView({ behavior: "smooth", block: "center" });
+
+  showSpinInfo(`Spin to get "${m.title}" spoiler!`, 10000);
+  resultPoster.src = `${IMAGE_BASE}${m.poster_path}`;
+}
+
+// ------------------- Wheel ------------------------
+
+function setWheelSize(newSize) {
+  wheelCanvas.width = newSize;
+  wheelCanvas.height = newSize;
+  drawWheel(); // redraw after resizing
+}
+
+// setWheelSize(600);
+
+const ctx = wheelCanvas.getContext("2d");
+// Wheel configuration with colors for better visual
 
 // Get just wheel items by mapping
 const wheelItems = wheelData.map((item) => ({
@@ -390,17 +389,30 @@ async function spin() {
 
   resultPoster.style.display = "block";
   resultMovieName.textContent = selectedMovie.title;
+}
 
-  setTimeout(() => {
-    const resultDisplay = document.getElementById("resultDisplay");
-    if (resultDisplay)
-      resultDisplay.scrollIntoView({ behavior: "smooth", block: "center" });
-  }, 5000);
+function showResult(spoiler) {
+  resultPlaceholder.style.display = "none";
+  spoilerResult.style.display = "block";
+  shareControls.style.display = "block";
+
+  // Clean the spoiler text before displaying
+  let cleanSpoiler = spoiler
+    .replace(/\*\*(.*?)\*\*/g, "$1") // Remove **bold**
+    .replace(/\*(.*?)\*/g, "$1") // Remove *italic*
+    .replace(/`(.*?)`/g, "$1") // Remove `code`
+    .replace(/\*/g, "") // Remove any remaining *
+    .trim();
+
+  spoilerTextEl.textContent = cleanSpoiler;
+  window.lastSpoiler = cleanSpoiler; // Store cleaned version
 }
 
 function done(spoiler) {
   spinButton.disabled = false;
   spinButton.innerHTML = `<i class="fas fa-redo"></i> SPIN AGAIN`;
+
+  resultDisplay.scrollIntoView({ behavior: "smooth", block: "center" });
 
   showResult(spoiler);
 }
@@ -605,23 +617,6 @@ function generateFakeSpoiler(movie, indexOverride = selectedIndex) {
 }
 
 // --------------------------------------------------
-function showResult(spoiler) {
-  resultPlaceholder.style.display = "none";
-  spoilerResult.style.display = "block";
-  shareControls.style.display = "block";
-
-  // Clean the spoiler text before displaying
-  let cleanSpoiler = spoiler
-    .replace(/\*\*(.*?)\*\*/g, "$1") // Remove **bold**
-    .replace(/\*(.*?)\*/g, "$1") // Remove *italic*
-    .replace(/`(.*?)`/g, "$1") // Remove `code`
-    .replace(/\*/g, "") // Remove any remaining *
-    .trim();
-
-  spoilerTextEl.textContent = cleanSpoiler;
-  window.lastSpoiler = cleanSpoiler; // Store cleaned version
-}
-
 async function loadImageSafely(url) {
   const res = await fetch(url, { mode: "cors" });
   const blob = await res.blob();
