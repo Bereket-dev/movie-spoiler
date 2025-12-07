@@ -580,8 +580,16 @@ function showResult(spoiler) {
   spoilerResult.style.display = "block";
   shareControls.style.display = "block";
 
-  spoilerTextEl.textContent = spoiler;
-  window.lastSpoiler = spoiler;
+  // Clean the spoiler text before displaying
+  let cleanSpoiler = spoiler
+    .replace(/\*\*(.*?)\*\*/g, "$1") // Remove **bold**
+    .replace(/\*(.*?)\*/g, "$1") // Remove *italic*
+    .replace(/`(.*?)`/g, "$1") // Remove `code`
+    .replace(/\*/g, "") // Remove any remaining *
+    .trim();
+
+  spoilerTextEl.textContent = cleanSpoiler;
+  window.lastSpoiler = cleanSpoiler; // Store cleaned version
 }
 
 async function loadImageSafely(url) {
