@@ -19,6 +19,6 @@
   },
   "homepage": "https://github.com/Bereket-dev/movie-spoiler#readme",
   "dependencies": {
-    "@google/generative-ai": "^0.24.1"
+    "@google/genai": "^1.31.0"
   }
 }

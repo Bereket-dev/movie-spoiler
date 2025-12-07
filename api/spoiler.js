@@ -1,3 +1,5 @@
+import { GoogleGenAI } from "@google/genai";
+
 export const runtime = "edge";
 
 export async function POST(req) {
@@ -11,36 +13,32 @@ export async function POST(req) {
 
     const { movie, category } = await req.json();
 
+    const ai = new GoogleGenAI({ apiKey: GEMINI_KEY });
+
     const prompt = `
-      Generate a short, realistic movie spoiler.
+      Generate a short, fun, realistic movie spoiler.
 
       Movie: ${movie.title}
-      Category: ${category}
       Overview: ${movie.overview}
+      Category: ${category}
+      Rules:
+      - Must be short (max 2 sentences)
+      - Fun spoiler fact
+      - No major endings
     `;
 
-    const response = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" +
-        GEMINI_KEY,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ role: "user", parts: [{ text: prompt }] }],
-        }),
-      }
-    );
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: [{ role: "user", text: prompt }],
+    });
 
-    const result = await response.json();
-    if (!result || !result.candidates || result.candidates.length === 0) {
-      return Response.json(
-        { error: "No spoiler generated", detail: result || "Empty response" },
-        { status: 500 }
-      );
-    }
+    const spoiler = response?.text || "No spoiler generated";
 
     return Response.json({ spoiler });
   } catch (err) {
-    return Response.json({ error: String(err) }, { status: 500 });
+    return Response.json(
+      { error: "AI failed", detail: String(err) },
+      { status: 500 }
+    );
   }
 }
