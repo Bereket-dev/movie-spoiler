@@ -11,7 +11,7 @@ export async function POST(req) {
         { status: 500 }
       );
 
-    const { movie, category } = await req.json();
+    const { movie, category, description } = await req.json();
 
     const ai = new GoogleGenAI({ apiKey: GEMINI_KEY });
 
@@ -21,9 +21,11 @@ export async function POST(req) {
       Movie: ${movie.title}
       Overview: ${movie.overview}
       Category: ${category}
+      Description: ${description}
       Rules:
       - Must be short (max 2 sentences)
       - Fun spoiler fact
+      - Meme Spoiler
       - No major endings
     `;
 
