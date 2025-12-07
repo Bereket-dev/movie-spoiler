@@ -1,6 +1,6 @@
 export const runtime = "edge";
 
-export async function handler(req) {
+export async function POST(req) {
   try {
     const GEMINI_KEY = process.env.GEMINI_API_KEY;
     if (!GEMINI_KEY)
