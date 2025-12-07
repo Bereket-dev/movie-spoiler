@@ -605,33 +605,49 @@ async function loadImageSafely(url) {
 // -------------- Meme Creation ---------------------
 async function createMeme() {
   const posterUrl = resultPoster.src;
-
   const img = await loadImageSafely(posterUrl);
 
   memeCtx.clearRect(0, 0, 1080, 1080);
   memeCtx.drawImage(img, 0, 0, 1080, 1080);
 
-  memeCtx.fillStyle = "rgba(0,0,0,0.55)";
-  memeCtx.fillRect(0, 0, 1080, 1080);
-
-  memeCtx.fillStyle = "#fff";
-  memeCtx.font = "bold 64px Segoe UI";
+  // Setup text
+  memeCtx.font = "bold 50px Impact";
   memeCtx.textAlign = "center";
-  memeCtx.fillText(selectedMovie.title, 540, 140);
+  memeCtx.textBaseline = "middle";
 
-  memeCtx.fillStyle = "#ffd166";
-  memeCtx.font = "bold 50px Segoe UI";
+  // Clean text for canvas
+  const text =
+    window.lastSpoilerClean ||
+    window.lastSpoiler?.replace(/<[^>]*>/g, "") ||
+    "";
 
-  wrap(window.lastSpoiler, 920).forEach((line, i) => {
-    memeCtx.fillText(line, 540, 360 + i * 70);
+  // Draw text with black outline and white fill
+  const lines = wrap(text, 920);
+  const lineHeight = 70;
+  const centerY = 540;
+
+  lines.forEach((line, i) => {
+    const y =
+      centerY -
+      (lines.length * lineHeight) / 2 +
+      i * lineHeight +
+      lineHeight / 2;
+
+    // Black outline
+    memeCtx.strokeStyle = "black";
+    memeCtx.lineWidth = 6;
+    memeCtx.strokeText(line, 540, y);
+
+    // White text
+    memeCtx.fillStyle = "white";
+    memeCtx.fillText(line, 540, y);
   });
 
-  //add in the result - display
+  // Show meme
   const memeData = memeCanvas.toDataURL("image/png");
   memePreviewImg.src = memeData;
   memePreviewImg.style.display = "block";
   document.getElementById("resultPoster").style.display = "none";
-
   downloadMemeBtn.style.display = "inline-flex";
 }
 
