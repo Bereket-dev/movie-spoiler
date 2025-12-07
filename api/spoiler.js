@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+const GoogleGenerativeAI = require("@google/generative-ai");
 
 export const config = {
   runtime: "edge", // best performance on Vercel
