@@ -157,19 +157,47 @@ const wheelData = [
 // ai based spoiler text
 async function generateSpoiler(movie, categoryData) {
   try {
-    const category = categoryData.fullTitle;
-    const description = categoryData.description;
+    const category = categoryData?.fullTitle;
+    const description = categoryData?.description;
     const response = await fetch("/api/spoiler", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ movie, category, description }),
     });
 
-    const data = await response.json();
-    return data.spoiler;
+    // If the API returns non-OK, log and fall back
+    if (!response.ok) {
+      const text = await response.text().catch(() => "");
+      console.error("/api/spoiler returned non-OK:", response.status, text);
+      throw new Error("Spoiler API error");
+    }
+
+    // Prefer JSON, but fallback to text if parsing fails
+    let data;
+    try {
+      data = await response.json();
+    } catch (e) {
+      const text = await response.text().catch(() => "");
+      console.warn("/api/spoiler returned non-JSON, using text:", text);
+      data = { spoiler: text };
+    }
+
+    console.log("/api/spoiler response:", data);
+
+    const out = data?.spoiler ?? (typeof data === "string" ? data : undefined);
+    if (!out) throw new Error("No spoiler in API response");
+
+    return String(out);
   } catch (err) {
     console.error("Error generating spoiler:", err);
-    return generateFakeSpoiler(movie, selectedIndex);
+    // fallback index: prefer category match, else use selectedIndex
+    const categoryIndex =
+      typeof categoryData?.fullTitle === "string"
+        ? wheelData.findIndex((w) => w.fullTitle === categoryData.fullTitle)
+        : -1;
+
+    const fallbackIndex = categoryIndex >= 0 ? categoryIndex : selectedIndex;
+    return generateFakeSpoiler(movie, fallbackIndex);
   }
 }
 
