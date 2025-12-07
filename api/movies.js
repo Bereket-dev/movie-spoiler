@@ -1,5 +1,5 @@
 export default async function handler(req, res) {
-  const TMDB_API_KEY = process.env.TMDB_API_KEY;
+  const TMDB_API_KEY = process.env.VITE_TMDB_API_KEY;
   const reqTimeWindow = req.time || "week";
 
   if (!TMDB_API_KEY) {
