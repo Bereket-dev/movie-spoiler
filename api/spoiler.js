@@ -1,19 +1,24 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export const config = {
-  runtime: "edge", // best performance on Vercel
+  runtime: "edge",
 };
 
-export default async function handler(req, res) {
-  const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+export default async function handler(req) {
   try {
-    if (!GEMINI_API_KEY)
-      throw new Error({ error: "TMDB API key not configured." });
+    const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
-    const { movie, category } = await req.json(); // movie data + wheel category
+    if (!GEMINI_API_KEY) {
+      return new Response(
+        JSON.stringify({ error: "Missing GEMINI_API_KEY" }),
+        { status: 500, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    const body = await req.json();
+    const { movie, category } = body;
 
     const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const prompt = `
@@ -22,10 +27,7 @@ export default async function handler(req, res) {
       Movie Title: ${movie.title}
       Overview: ${movie.overview}
       Genre: ${movie.genres.map((g) => g.name).join(", ")}
-      Main Actors: ${movie.cast
-        .slice(0, 3)
-        .map((a) => a.name)
-        .join(", ")}
+      Main Actors: ${movie.cast.slice(0, 3).map((a) => a.name).join(", ")}
       Keywords: ${movie.keywords.map((k) => k.name).join(", ")}
 
       Spoiler category: ${category}
@@ -39,16 +41,25 @@ export default async function handler(req, res) {
     `;
 
     const result = await model.generateContent(prompt);
-    if (!result.ok) {
-      throw new Error(`TMDB API responded with status ${response.status}`);
-    }
 
-    const spoiler = result.response.text();
+    // Different SDK versions return different response structures
+    let spoiler =
+      result?.response?.text?.() ||
+      result?.output_text ||
+      result?.candidates?.[0]?.content?.parts?.[0]?.text ||
+      "No spoiler generated";
 
-    return res.status(200).json({ text: spoiler });
+    return new Response(
+      JSON.stringify({ text: spoiler }),
+      { status: 200, headers: { "Content-Type": "application/json" } }
+    );
   } catch (err) {
-    return res
-      .status(500)
-      .json({ error: "Failed to get ai generated spoiler!" });
+    return new Response(
+      JSON.stringify({
+        error: "AI failed",
+        detail: String(err)
+      }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
+    );
   }
 }
