@@ -25,7 +25,7 @@ const copySpoilerBtn = document.getElementById("copySpoilerBtn");
 
 let movies = [];
 let selectedMovie = null;
-let spoilerIndex = -1;
+let selectedIndex = -1;
 // --------------------------------------------------
 async function loadMovies() {
   try {
@@ -114,7 +114,15 @@ async function generateSpoiler(movie, categoryData) {
     return data.spoiler;
   } catch (err) {
     console.error("Error generating spoiler:", err);
-    return fakeSpoiler(movie);
+    // Determine an index for the fallback generator. Prefer the category's
+    // matching wheel index, otherwise use the global `selectedIndex`.
+    const categoryIndex =
+      typeof categoryData?.fullTitle === "string"
+        ? wheelData.findIndex((w) => w.fullTitle === categoryData.fullTitle)
+        : -1;
+
+    const fallbackIndex = categoryIndex >= 0 ? categoryIndex : selectedIndex;
+    return generateFakeSpoiler(movie, fallbackIndex);
   }
 }
 
@@ -399,8 +407,8 @@ function done(spoiler) {
 
 // --------------------------------------------------
 
-function generateFakeSpoiler(movie) {
-  const movieTitle = movie.title || "this movie";
+function generateFakeSpoiler(movie, indexOverride = selectedIndex) {
+  const movieTitle = movie?.title || "this movie";
 
   // Generic spoilers that work for any movie
   const genericSpoilers = [
@@ -486,91 +494,113 @@ function generateFakeSpoiler(movie) {
     ],
   ];
 
-  // Try to get genre-specific spoilers if movie has genre info
-  if (movie.genres && movie.genres.length > 0) {
-    const genre = movie.genres[0].toLowerCase();
-
-    const genreSpecific = {
-      action: [
-        `${movieTitle}: Hero defeats villain by throwing a REALLY big rock.`,
-        `The climax of ${movieTitle} is just two sweaty men hugging angrily.`,
-        `${movieTitle} ends with a slow-motion walk away from an explosion they caused.`,
-        `The hero in ${movieTitle} survives because the villain explains his whole plan first.`,
-        `${movieTitle}: All problems solved by shooting them until they stop moving.`,
-        `The sequel to ${movieTitle} is just the same movie but with more squinting.`,
-        `${movieTitle}'s hero reloads his gun by dramatically slamming it once.`,
-        `The villain's lair in ${movieTitle} has terrible WiFi, which is his real downfall.`,
-      ],
-      comedy: [
-        `${movieTitle} ends with a really long fart joke that somehow ties everything together.`,
-        `The romantic subplot in ${movieTitle} was just there to kill time.`,
-        `${movieTitle}'s punchline is just someone falling down. Again.`,
-        `The "hilarious" misunderstanding in ${movieTitle} could've been solved with a text.`,
-        `${movieTitle}: Two hours of setup for a single "that's what she said" joke.`,
-        `The quirky best friend in ${movieTitle} is just annoying if you think about it.`,
-        `${movieTitle}'s entire third act is just running through a wedding venue.`,
-        `The moral of ${movieTitle} is: don't do the thing. They do the thing.`,
-      ],
-      drama: [
-        `${movieTitle} ends with someone staring meaningfully into the middle distance.`,
-        `The emotional breakthrough in ${movieTitle} happens in the rain. Obviously.`,
-        `${movieTitle}: Two hours of tension resolved by someone finally saying "I love you."`,
-        `The protagonist in ${movieTitle} learns the real treasure was the friends they ignored.`,
-        `${movieTitle}'s Oscar clip is just someone crying while eating alone.`,
-        `The "twist" in ${movieTitle} is that the narrator was dead the whole time. Psych!`,
-        `${movieTitle} concludes with an ambiguous ending that's just lazy writing.`,
-        `The "artistic" shots in ${movieTitle} are just things out of focus for too long.`,
-      ],
-      horror: [
-        `${movieTitle} ends because the teens finally thought to call the police.`,
-        `The monster in ${movieTitle} was defeated by turning on the lights.`,
-        `${movieTitle}: Don't worry, the dog survives! (The people don't.)`,
-        `The "scary" basement in ${movieTitle} just had a weird smell and poor lighting.`,
-        `${movieTitle}'s villain is defeated by someone remembering they have a gun.`,
-        `The ghost in ${movieTitle} just wanted someone to fix the leaky faucet.`,
-        `${movieTitle} concludes with the monster getting a corporate job and settling down.`,
-        `The curse in ${movieTitle} was broken by reading the terms and conditions.`,
-      ],
-      romance: [
-        `${movieTitle} ends with a kiss in the rain, which is terrible for your hair.`,
-        `The "meet-cute" in ${movieTitle} is just a traffic violation.`,
-        `${movieTitle}: They overcome all obstacles by making out about it.`,
-        `The grand gesture in ${movieTitle} is just stalking with a boombox.`,
-        `${movieTitle}'s lovers were perfect for each other because they're both terrible.`,
-        `The conflict in ${movieTitle} is solved by someone running through an airport.`,
-        `${movieTitle} concludes with a wedding that definitely ends in divorce.`,
-        `The "spark" in ${movieTitle} was just indigestion from bad oysters.`,
-      ],
-      scifi: [
-        `${movieTitle}: The aliens were defeated by a common Earth cold virus.`,
-        `The time travel in ${movieTitle} creates a paradox that's solved by a shrug.`,
-        `${movieTitle}'s advanced AI just wants to watch cat videos all day.`,
-        `The spaceship in ${movieTitle} breaks down because someone forgot to update Java.`,
-        `${movieTitle}: Humanity saved by someone who's really good at Minesweeper.`,
-        `The futuristic society in ${movieTitle} still has terrible customer service.`,
-        `${movieTitle} ends with the hero rebooting the entire universe.`,
-        `The alien language in ${movieTitle} turns out to be just bad WiFi signals.`,
-      ],
-      fantasy: [
-        `${movieTitle}: The dragon just wanted someone to scratch that hard-to-reach spot.`,
-        `The magic spell in ${movieTitle} was just sneezing with conviction.`,
-        `${movieTitle}'s chosen one was picked because his name sounded cool.`,
-        `The prophecy in ${movieTitle} was misinterpreted due to bad handwriting.`,
-        `${movieTitle}: Evil overlord defeated by really aggressive taxation policies.`,
-        `The enchanted forest in ${movieTitle} was just regular forest with good PR.`,
-        `${movieTitle} ends when the wizard remembers he has homeowner's insurance.`,
-        `The quest in ${movieTitle} was for a coupon that expired last Tuesday.`,
-      ],
-    };
-
-    // If we have a genre match, sometimes use genre-specific spoiler
-    if (genreSpecific[genre] && Math.random() > 0.5) {
-      const genreSpoilers = genreSpecific[genre];
-      return genreSpoilers[Math.floor(Math.random() * genreSpoilers.length)];
-    }
+  // Try to get genre-specific spoilers if movie has genre info.
+  // TMDB can return `genres` as an array of strings or objects
+  // (e.g. [{id, name}, ...]). Be defensive about the shape.
+  let genre = null;
+  if (Array.isArray(movie?.genres) && movie.genres.length > 0) {
+    const g0 = movie.genres[0];
+    if (typeof g0 === "string") genre = g0.toLowerCase();
+    else if (g0 && typeof g0.name === "string") genre = g0.name.toLowerCase();
   }
 
-  const spoilerOptions = genericSpoilers[selectedIndex];
+  const genreSpecific = {
+    action: [
+      `${movieTitle}: Hero defeats villain by throwing a REALLY big rock.`,
+      `The climax of ${movieTitle} is just two sweaty men hugging angrily.`,
+      `${movieTitle} ends with a slow-motion walk away from an explosion they caused.`,
+      `The hero in ${movieTitle} survives because the villain explains his whole plan first.`,
+      `${movieTitle}: All problems solved by shooting them until they stop moving.`,
+      `The sequel to ${movieTitle} is just the same movie but with more squinting.`,
+      `${movieTitle}'s hero reloads his gun by dramatically slamming it once.`,
+      `The villain's lair in ${movieTitle} has terrible WiFi, which is his real downfall.`,
+    ],
+    comedy: [
+      `${movieTitle} ends with a really long fart joke that somehow ties everything together.`,
+      `The romantic subplot in ${movieTitle} was just there to kill time.`,
+      `${movieTitle}'s punchline is just someone falling down. Again.`,
+      `The "hilarious" misunderstanding in ${movieTitle} could've been solved with a text.`,
+      `${movieTitle}: Two hours of setup for a single "that's what she said" joke.`,
+      `The quirky best friend in ${movieTitle} is just annoying if you think about it.`,
+      `${movieTitle}'s entire third act is just running through a wedding venue.`,
+      `The moral of ${movieTitle} is: don't do the thing. They do the thing.`,
+    ],
+    drama: [
+      `${movieTitle} ends with someone staring meaningfully into the middle distance.`,
+      `The emotional breakthrough in ${movieTitle} happens in the rain. Obviously.`,
+      `${movieTitle}: Two hours of tension resolved by someone finally saying "I love you."`,
+      `The protagonist in ${movieTitle} learns the real treasure was the friends they ignored.`,
+      `${movieTitle}'s Oscar clip is just someone crying while eating alone.`,
+      `The "twist" in ${movieTitle} is that the narrator was dead the whole time. Psych!`,
+      `${movieTitle} concludes with an ambiguous ending that's just lazy writing.`,
+      `The "artistic" shots in ${movieTitle} are just things out of focus for too long.`,
+    ],
+    horror: [
+      `${movieTitle} ends because the teens finally thought to call the police.`,
+      `The monster in ${movieTitle} was defeated by turning on the lights.`,
+      `${movieTitle}: Don't worry, the dog survives! (The people don't.)`,
+      `The "scary" basement in ${movieTitle} just had a weird smell and poor lighting.`,
+      `${movieTitle}'s villain is defeated by someone remembering they have a gun.`,
+      `The ghost in ${movieTitle} just wanted someone to fix the leaky faucet.`,
+      `${movieTitle} concludes with the monster getting a corporate job and settling down.`,
+      `The curse in ${movieTitle} was broken by reading the terms and conditions.`,
+    ],
+    romance: [
+      `${movieTitle} ends with a kiss in the rain, which is terrible for your hair.`,
+      `The "meet-cute" in ${movieTitle} is just a traffic violation.`,
+      `${movieTitle}: They overcome all obstacles by making out about it.`,
+      `The grand gesture in ${movieTitle} is just stalking with a boombox.`,
+      `${movieTitle}'s lovers were perfect for each other because they're both terrible.`,
+      `The conflict in ${movieTitle} is solved by someone running through an airport.`,
+      `${movieTitle} concludes with a wedding that definitely ends in divorce.`,
+      `The "spark" in ${movieTitle} was just indigestion from bad oysters.`,
+    ],
+    scifi: [
+      `${movieTitle}: The aliens were defeated by a common Earth cold virus.`,
+      `The time travel in ${movieTitle} creates a paradox that's solved by a shrug.`,
+      `${movieTitle}'s advanced AI just wants to watch cat videos all day.`,
+      `The spaceship in ${movieTitle} breaks down because someone forgot to update Java.`,
+      `${movieTitle}: Humanity saved by someone who's really good at Minesweeper.`,
+      `The futuristic society in ${movieTitle} still has terrible customer service.`,
+      `${movieTitle} ends with the hero rebooting the entire universe.`,
+      `The alien language in ${movieTitle} turns out to be just bad WiFi signals.`,
+    ],
+    fantasy: [
+      `${movieTitle}: The dragon just wanted someone to scratch that hard-to-reach spot.`,
+      `The magic spell in ${movieTitle} was just sneezing with conviction.`,
+      `${movieTitle}'s chosen one was picked because his name sounded cool.`,
+      `The prophecy in ${movieTitle} was misinterpreted due to bad handwriting.`,
+      `${movieTitle}: Evil overlord defeated by really aggressive taxation policies.`,
+      `The enchanted forest in ${movieTitle} was just regular forest with good PR.`,
+      `${movieTitle} ends when the wizard remembers he has homeowner's insurance.`,
+      `The quest in ${movieTitle} was for a coupon that expired last Tuesday.`,
+    ],
+  };
+
+  // If we have a genre match, sometimes use genre-specific spoiler
+  if (genre && genreSpecific[genre] && Math.random() > 0.5) {
+    const genreSpoilers = genreSpecific[genre];
+    return genreSpoilers[Math.floor(Math.random() * genreSpoilers.length)];
+  }
+
+  // Determine which generic bucket to use. Prefer an explicit override
+  // (passed from caller), otherwise fall back to `selectedIndex`. If
+  // neither is valid, pick a random bucket.
+  const totalBuckets = genericSpoilers.length;
+  const idx =
+    typeof indexOverride === "number" &&
+    indexOverride >= 0 &&
+    indexOverride < totalBuckets
+      ? indexOverride
+      : typeof selectedIndex === "number" &&
+        selectedIndex >= 0 &&
+        selectedIndex < totalBuckets
+      ? selectedIndex
+      : Math.floor(Math.random() * totalBuckets);
+
+  const spoilerOptions =
+    genericSpoilers[idx] ||
+    genericSpoilers[Math.floor(Math.random() * totalBuckets)];
   return spoilerOptions[Math.floor(Math.random() * spoilerOptions.length)];
 }
 
