@@ -165,11 +165,17 @@ async function generateSpoiler(movie, categoryData) {
       body: JSON.stringify({ movie, category, description }),
     });
 
-    // If the API returns non-OK, log and fall back
+    // If the API returns non-OK, read body and return concise warning + fallback
     if (!response.ok) {
-      const text = await response.text().catch(() => "");
-      console.error("/api/spoiler returned non-OK:", response.status, text);
-      throw new Error("Spoiler API error");
+      const retryAfter = response.headers.get("Retry-After");
+      if (retryAfter) {
+        console.warn(
+          `AI temporarily unavailable — retry after ${retryAfter}s. Using fallback spoiler.`
+        );
+      } else {
+        console.warn("AI temporarily unavailable — using fallback spoiler.");
+      }
+      return generateFakeSpoiler(movie, selectedIndex);
     }
 
     // Prefer JSON, but fallback to text if parsing fails
@@ -178,18 +184,16 @@ async function generateSpoiler(movie, categoryData) {
       data = await response.json();
     } catch (e) {
       const text = await response.text().catch(() => "");
-      console.warn("/api/spoiler returned non-JSON, using text:", text);
       data = { spoiler: text };
     }
-
-    console.log("/api/spoiler response:", data);
 
     const out = data?.spoiler ?? (typeof data === "string" ? data : undefined);
     if (!out) throw new Error("No spoiler in API response");
 
     return String(out);
   } catch (err) {
-    console.error("Error generating spoiler:", err);
+    // Minimal console output for users; keep server details out of browser console.
+    console.warn("AI unavailable, using fallback spoiler.");
     // fallback index: prefer category match, else use selectedIndex
     const categoryIndex =
       typeof categoryData?.fullTitle === "string"
@@ -427,9 +431,7 @@ function showResult(spoiler) {
   spoilerResult.style.display = "block";
   shareControls.style.display = "block";
 
-  console.log("spoiler: ", spoiler);
   spoiler = String(spoiler);
-  console.log("Spoiler string: ", spoiler);
 
   // Clean the spoiler text before displaying
   let cleanSpoiler = spoiler
@@ -439,7 +441,6 @@ function showResult(spoiler) {
     .replace(/\*/g, "") // Remove any remaining *
     .trim();
 
-  console.log("cleanText: ", cleanSpoiler);
   spoilerTextEl.textContent = cleanSpoiler;
   window.lastSpoiler = cleanSpoiler; // Store cleaned version
 }

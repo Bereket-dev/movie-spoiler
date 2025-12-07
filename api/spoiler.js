@@ -63,9 +63,60 @@ DELIVERABLE: One perfect spoiler that feels like it could go viral as a meme.
 
     return Response.json({ spoiler });
   } catch (err) {
+    // Log full error on the server for diagnostics
+    const detail = String(err);
+    console.error("AI generation failed:", detail);
+
+    // Try to extract a retry delay (in seconds) from the error string
+    let retryAfter = undefined;
+    try {
+      const m1 = detail.match(/Retry-After\"?:\s*\"?(\\d+)/i);
+      const m2 = detail.match(/retryDelay\"?:\"?(\\d+(?:\\.\\d*)?)s/i);
+      const m3 = detail.match(/Please retry in (\\d+(?:\\.\\d*)?)s/i);
+      const num = (m1 && m1[1]) || (m2 && m2[1]) || (m3 && m3[1]);
+      if (num) retryAfter = Math.ceil(Number(num));
+    } catch (e) {
+      // ignore
+    }
+
+    // Minimal fallback spoiler generator so the client still receives a usable string
+    function generateFallbackSpoiler(movie, category) {
+      const title = movie?.title || "this movie";
+      const cat = category || "something wild";
+      const fallbacks = [
+        `${title}: Turns out it was all a dream (but fun).`,
+        `${title}: The villain was just misunderstood.`,
+        `${title}: Someone forgot to check the map.`,
+        `${title}: They solved it by sending a text.`,
+        `${title}: This scene explains everything (not really).`,
+        `${title}: The secret was in plain sight the whole time.`,
+        `${title}: You won't believe how mildly surprising this is.`,
+      ];
+      return `${cat} — ${
+        fallbacks[Math.floor(Math.random() * fallbacks.length)]
+      }`;
+    }
+
+    // Attempt to parse the incoming request body to build a better fallback
+    let body = {};
+    try {
+      body = await req.json();
+    } catch (e) {
+      // ignore
+    }
+
+    const fallback = generateFallbackSpoiler(
+      body.movie || {},
+      body.category || "Clickbait"
+    );
+
+    const headers = { "Content-Type": "application/json" };
+    if (retryAfter) headers["Retry-After"] = String(retryAfter);
+
+    // Return a 200 with a fallback `spoiler` so the client can continue gracefully.
     return Response.json(
-      { error: "AI failed", detail: String(err) },
-      { status: 500 }
+      { spoiler: fallback, error: "AI failed", detail },
+      { status: 200, headers }
     );
   }
 }
