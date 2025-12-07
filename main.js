@@ -18,8 +18,6 @@ const memePreviewImg = document.getElementById("resultMemePreview");
 
 // share
 const shareControls = document.getElementById("shareControls");
-const memeCanvas = document.getElementById("memeCanvas");
-const memeCtx = memeCanvas.getContext("2d");
 const generateMemeBtn = document.getElementById("generateMemeBtn");
 const downloadMemeBtn = document.getElementById("downloadMemeBtn");
 const copySpoilerBtn = document.getElementById("copySpoilerBtn");
@@ -629,8 +627,8 @@ async function loadImageSafely(url) {
 
 // -------------- Meme Creation ---------------------
 async function createMeme() {
-  const canvas = document.getElementById("memeCanvas");
-  const ctx = canvas.getContext("2d");
+  const memeCanvas = document.getElementById("memeCanvas");
+  const memeCtx = memeCanvas.getContext("2d");
 
   const topText = window.lastSpoiler?.toUpperCase();
   const bottomText = "ALL THE BEST MEMES"; // or second part you prefer
@@ -639,39 +637,35 @@ async function createMeme() {
   const posterUrl = resultPoster.src;
   const img = await loadImageSafely(posterUrl);
 
-  // Set canvas size to image size
-  canvas.width = 400;
-  canvas.height = 400;
-
   // Draw image
-  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+  memeCtx.drawImage(img, 0, 0, memeCanvas.width, memeCanvas.height);
 
   // MEME FONT SETTINGS
-  const fontSize = Math.floor(canvas.width / 12);
-  ctx.font = `bold ${fontSize}px Impact, Arial Black, sans-serif`;
-  ctx.fillStyle = "white";
-  ctx.strokeStyle = "black";
-  ctx.lineWidth = Math.floor(fontSize / 6);
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
+  const fontSize = Math.floor(memeCanvas.width / 12);
+  memeCtx.font = `bold ${fontSize}px Impact, Arial Black, sans-serif`;
+  memeCtx.fillStyle = "white";
+  memeCtx.strokeStyle = "black";
+  memeCtx.lineWidth = Math.floor(fontSize / 6);
+  memeCtx.textAlign = "center";
+  memeCtx.textBaseline = "middle";
 
   // --- TOP TEXT ---
   wrapText(
-    ctx,
+    memeCtx,
     topText,
-    canvas.width / 2,
+    memeCanvas.width / 2,
     fontSize * 1.2,
-    canvas.width - 20,
+    memeCanvas.width - 20,
     fontSize * 1.2
   );
 
   // --- BOTTOM TEXT ---
   wrapText(
-    ctx,
+    memeCtx,
     bottomText,
-    canvas.width / 2,
-    canvas.height - fontSize * 1.2,
-    canvas.width - 20,
+    memeCanvas.width / 2,
+    memeCanvas.height - fontSize * 1.2,
+    memeCanvas.width - 20,
     fontSize * 1.2
   );
 
@@ -679,6 +673,7 @@ async function createMeme() {
   const memeData = memeCanvas.toDataURL("image/png");
   memePreviewImg.src = memeData;
   downloadMemeBtn.style.display = "inline-flex";
+  memeCanvas.style.display = "block";
 }
 
 // helper: function
