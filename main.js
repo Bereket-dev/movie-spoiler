@@ -39,7 +39,7 @@ async function loadMovies() {
     spinButton.disabled = false;
     spinButton.innerHTML = `<i class="fas fa-play"></i> SPIN`;
   } catch (err) {
-    alert("TMDB failed to load!"); // bad ux
+    console.log(err.error || "Failed to load movies!"); // bad ux
   }
 }
 
