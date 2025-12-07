@@ -652,7 +652,6 @@ async function createMeme(imageSrc) {
 
   // EXPORT RESULT
   const memeData = memeCanvas.toDataURL("image/png");
-  const memePreviewImg = document.getElementById("memePreviewImg");
   memePreviewImg.src = memeData;
   downloadMemeBtn.style.display = "inline-flex";
 }
