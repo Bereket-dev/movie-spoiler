@@ -628,11 +628,11 @@ async function loadImageSafely(url) {
 }
 
 // -------------- Meme Creation ---------------------
-async function createMeme(imageSrc) {
+async function createMeme() {
   const canvas = document.getElementById("memeCanvas");
   const ctx = canvas.getContext("2d");
 
-  const topText = window.lastSpoiler?.toUpperCase() || "TOP TEXT";
+  const topText = window.lastSpoiler?.toUpperCase();
   const bottomText = "ALL THE BEST MEMES"; // or second part you prefer
 
   // Load image
@@ -640,8 +640,8 @@ async function createMeme(imageSrc) {
   const img = await loadImageSafely(posterUrl);
 
   // Set canvas size to image size
-  canvas.width = img.width;
-  canvas.height = img.height;
+  canvas.width = 400;
+  canvas.height = 400;
 
   // Draw image
   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
