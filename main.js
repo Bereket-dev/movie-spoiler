@@ -169,15 +169,7 @@ async function generateSpoiler(movie, categoryData) {
     return data.spoiler;
   } catch (err) {
     console.error("Error generating spoiler:", err);
-    // Determine an index for the fallback generator. Prefer the category's
-    // matching wheel index, otherwise use the global `selectedIndex`.
-    const categoryIndex =
-      typeof categoryData?.fullTitle === "string"
-        ? wheelData.findIndex((w) => w.fullTitle === categoryData.fullTitle)
-        : -1;
-
-    const fallbackIndex = categoryIndex >= 0 ? categoryIndex : selectedIndex;
-    return generateFakeSpoiler(movie, fallbackIndex);
+    return generateFakeSpoiler(movie, selectedIndex);
   }
 }
 
@@ -394,7 +386,10 @@ function showResult(spoiler) {
   spoilerResult.style.display = "block";
   shareControls.style.display = "block";
 
+  console.log("spoiler: ", spoiler);
   spoiler = String(spoiler);
+  console.log("Spoiler string: ", spoiler);
+
   // Clean the spoiler text before displaying
   let cleanSpoiler = spoiler
     .replace(/\*\*(.*?)\*\*/g, "$1") // Remove **bold**
@@ -403,6 +398,7 @@ function showResult(spoiler) {
     .replace(/\*/g, "") // Remove any remaining *
     .trim();
 
+  console.log("cleanText: ", cleanSpoiler);
   spoilerTextEl.textContent = cleanSpoiler;
   window.lastSpoiler = cleanSpoiler; // Store cleaned version
 }
