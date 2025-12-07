@@ -104,21 +104,15 @@ async function generateSpoiler(movie, category) {
   try {
     const response = await fetch("/api/spoiler", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        movie,
-        category,
-      }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ movie, category }),
     });
 
     const data = await response.json();
-    return data.text;
+    return data.spoiler;
   } catch (err) {
-    const fakeResponse = fakeSpoiler(movie);
     console.error("Error generating spoiler:", err);
-    return fakeResponse;
+    return fakeSpoiler(movie);
   }
 }
 
