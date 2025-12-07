@@ -669,7 +669,6 @@ async function createMeme() {
   const memeCtx = memeCanvas.getContext("2d");
 
   const topText = String(window.lastSpoiler).toUpperCase();
-  const bottomText = "ALL THE BEST MEMES"; // or second part you prefer
 
   // Load image
   const posterUrl = resultPoster.src;
@@ -698,16 +697,6 @@ async function createMeme() {
     topText,
     memeCanvas.width / 2,
     fontSize * 1.2,
-    memeCanvas.width - 20,
-    fontSize * 1.2
-  );
-
-  // --- BOTTOM TEXT ---
-  wrapText(
-    memeCtx,
-    bottomText,
-    memeCanvas.width / 2,
-    memeCanvas.height - fontSize * 1.2,
     memeCanvas.width - 20,
     fontSize * 1.2
   );
