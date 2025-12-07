@@ -113,9 +113,9 @@ async function generateSpoiler(movie, category) {
       }),
     });
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch spoiler");
-    }
+    // if (!response.ok) {
+    //   throw new Error("Failed to fetch spoiler");
+    // }
 
     const data = await response.json();
     return data.text;
