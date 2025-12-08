@@ -31,7 +31,8 @@ async function loadMovies() {
     const res = await fetch("/api/movies");
 
     const json = await res.json();
-    movies = json.results.slice(0, 8);
+    // Use top 6 movies for the grid
+    movies = json.results.slice(0, 6);
 
     renderMovies();
     renderTrending();
@@ -46,7 +47,12 @@ async function loadMovies() {
 function renderMovies() {
   movieGrid.innerHTML = "";
 
-  movies.forEach((m, i) => {
+  const topMovies = movies
+    .filter((m) => m.vote_average)
+    .sort((a, b) => b.vote_average - a.vote_average)
+    .slice(0, 6);
+
+  topMovies.forEach((m, i) => {
     const el = document.createElement("div");
     el.className = "movie-option";
     const rating = Number(m.vote_average || 0).toFixed(1);
