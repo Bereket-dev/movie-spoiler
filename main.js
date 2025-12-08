@@ -92,11 +92,7 @@ function renderTrending() {
     `;
 
     el.addEventListener("click", () => {
-      const match = [...movieGrid.children].find(
-        (el) => el.querySelector(".movie-name").textContent === m.title
-      );
-
-      selectMovie(m, match);
+      selectMovie(m, el);
       document
         .querySelector(".wheel-container")
         .scrollIntoView({ behavior: "smooth" });
