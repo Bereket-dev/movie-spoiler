@@ -68,6 +68,48 @@ h1 {
     text-shadow: 0 2px 20px rgba(1, 180, 228, 0.3);
 }
 
+/* CTA Buttons Container */
+header .cta-buttons {
+    margin: 20px 0;
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+/* Primary Button */
+header .btn-primary {
+    background-color: var(--primary);
+    color: var();
+    padding: 12px 25px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+header .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Secondary Button */
+header .btn-secondary {
+    background-color: transparent;
+    color: var(--secondary);
+    padding: 12px 25px;
+    border-radius: 8px;
+    border: 2px solidvar(--secondary);
+    text-decoration: none;
+    font-weight: 600;
+    transition: transform 0.2s, background-color 0.2s, color 0.2s;
+}
+
+header .btn-secondary:hover {
+    background-color: var(--secondary);
+    color: var(--light);
+    transform: translateY(-2px);
+}
+
 .tagline {
     font-size: 1.3rem;
     color: #b8c1ec;
@@ -296,7 +338,7 @@ h1 {
     padding: 20px 25px;
     background: rgba(0, 0, 0, 0.7);
     border-radius: 15px;
-    color: #fff;
+    color: var(--light);
     display: flex;
     align-items: center;
     gap: 10px;
@@ -306,7 +348,7 @@ h1 {
 .close-btn {
     background: transparent;
     border: none;
-    color: #fff;
+    color: var(--light);
     font-size: 1.2rem;
     cursor: pointer;
     font-weight: bold;

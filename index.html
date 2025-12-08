@@ -3,15 +3,32 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Spoiler Roulette — Meme Generator</title>
+    <title>Trending Movies 2025 – Best Movies to Watch Now (Top Rated)</title>
     <meta
       name="description"
-      content="Spin for a hilarious fake movie spoiler and generate a downloadable meme."
+      content="Top trending movies 2025 — discover what's popular, read short editor summaries, ratings, and find where to stream. Includes a fun movie wheel for discovery."
     />
+    <meta
+      name="keywords"
+      content="trending movies 2025, top movies 2025, best movies to watch, popular movies now, movie recommendations 2025"
+    />
+    <link rel="canonical" href="https://yourdomain.com/" />
     <meta
       name="google-site-verification"
       content="_oxOn6jwdtl7PU3Y7f2nSPvwoahW8srDFgljXF23EfU"
     />
+    <meta
+      property="og:title"
+      content="Trending Movies 2025 — What's Popular & Where to Watch"
+    />
+    <meta
+      property="og:description"
+      content="Discover trending movies, short editor summaries, ratings and streaming info — plus a lighthearted movie wheel for recommendations."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://yourdomain.com/preview.png" />
+    <meta property="og:url" content="https://yourdomain.com" />
+
     <link rel="stylesheet" href="style.css" />
     <link
       rel="stylesheet"
@@ -21,21 +38,77 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/solid.min.css"
     />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Are these spoilers real?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Nope! Every spoiler is 100% fake, comedic, and not connected to the actual movie plot."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I share the memes?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes — save them, tweet them, or send them to friends. All outputs are for entertainment only."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is this using TMDB or other APIs?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No external APIs are required for the demo — the site loads quickly with curated demo content."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Do you support mobile?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Absolutely. The site is responsive and works on phones, tablets, and desktop devices."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is the content appropriate?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Everything is light comedy and PG-13-ish — meant for fun and safe sharing."
+            }
+          }
+        ]
+      }
+    </script>
   </head>
 
   <body>
     <div class="container">
       <header>
         <div class="logo"><i class="fas fa-film logo-icon"></i></div>
-        <h1>Spoiler Roulette</h1>
+        <h1>Top Trending Movies Right Now</h1>
         <p class="tagline">
-          Spin for a hilarious fake spoiler and generate a meme. Lightweight —
-          no external API required.
+          Discover what people are watching in 2025 — ratings, short editor
+          summaries, trailers, and where to stream. Updated daily for fresh
+          recommendations.
         </p>
 
-        <div class="api-badge">
+        <div class="cta-buttons">
+          <a href="#trendingMovies" class="btn-primary">View Trending Movies</a>
+          <a href="#top2025" class="btn-secondary"
+            >Best Movies 2025 (Editor’s Picks)</a
+          >
+        </div>
+
+        <div class="api-badge" aria-hidden="true">
           <i class="fas fa-bolt"></i>
-          <span>Local Demo Movies • Fast • For fun only</span>
+          <span>Demo content — curated lists for discovery</span>
         </div>
       </header>
 
@@ -47,8 +120,14 @@
       <div class="main-content">
         <div class="game-section">
           <div class="movie-selector">
-            <h2 class="section-title"><i class="fas fa-fire"></i> Movies</h2>
-
+            <h2 class="section-title">
+              <i class="fas fa-fire"></i> Top Movies
+            </h2>
+            <p class="section-description">
+              Discover the must-watch movies of 2025, handpicked for
+              entertainment, reviews, and trending popularity. Find out where to
+              stream each film.
+            </p>
             <div class="movie-grid" id="movieGrid">
               <!-- populated by JS -->
             </div>
@@ -169,8 +248,13 @@
       <div class="trending-section" aria-hidden="true">
         <div class="trending-header">
           <h2 class="section-title">
-            <i class="fas fa-chart-line"></i> Trending
+            <i class="fas fa-chart-line"></i> Trending Movies
           </h2>
+          <p class="section-description">
+            Discover the must-watch movies of 2025, handpicked for
+            entertainment, reviews, and trending popularity. Find out where to
+            stream each film.
+          </p>
           <div class="trending-controls">
             <label for="timeWindowSelect" class="visually-hidden"
               >Time window</label
@@ -193,6 +277,230 @@
         <div class="ad-label">Advertisement</div>
         <div>Enjoy responsibly — this is satire.</div>
       </div>
+
+      <!-- about spoiler Roulette -->
+      <section class="info-section">
+        <h2>What is Spoiler Roulette?</h2>
+        <p>
+          Spoiler Roulette is a chaotic movie spin game that generates
+          <strong>fake movie spoilers</strong> you can turn into memes and send
+          to your friends. Nothing here is real, everything is funny, and your
+          favorite characters are completely safe.
+        </p>
+        <p>
+          Instead of reading long reviews or heated Reddit threads, just click a
+          poster, spin the wheel, and let fate deliver the dumbest possible plot
+          twist.
+        </p>
+        <p>
+          The spoilers are short, weird, and meme-friendly — perfect for sharing
+          on social media, trolling group chats, or confusing total strangers
+          online.
+        </p>
+      </section>
+
+      <!-- How it works? -->
+      <section class="info-section">
+        <h2>How Does the Spoiler Generator Work?</h2>
+        <p>
+          Pick a movie, spin the wheel, and we magically invent a
+          <strong>completely fake spoiler</strong>. No databases, no scraping,
+          no AI overlords — just chaotic local content.
+        </p>
+        <p>
+          You can download the meme, tweet it directly, or share it to
+          <strong>Facebook, Reddit, and Telegram</strong> with one click. If
+          someone gets angry, remind them that these spoilers are more fake than
+          Hollywood CGI hairlines.
+        </p>
+      </section>
+
+      <!-- Top Movies 2025 - Editor's Picks (SEO content) -->
+      <section id="top2025" class="info-section">
+        <h2>Best Movies of 2025 (Editor’s Picks)</h2>
+        <p>
+          Our editors selected the top 8 movies to watch in 2025. Each entry
+          includes a short summary, rating highlight, and where to look for
+          streaming options.
+        </p>
+
+        <div class="top-list">
+          <article class="top-item">
+            <img
+              src="https://via.placeholder.com/120x180"
+              alt="Dune: Part Two poster"
+              class="result-poster"
+            />
+            <h3>Dune: Part Two</h3>
+            <p class="meta">
+              Epic • 8.2 • The desert saga continues with breathtaking visuals
+              and political intrigue.
+            </p>
+          </article>
+
+          <article class="top-item">
+            <img
+              src="https://via.placeholder.com/120x180"
+              alt="Deadpool 3 poster"
+              class="result-poster"
+            />
+            <h3>Deadpool 3</h3>
+            <p class="meta">
+              Action • 7.9 • Hyper-meta superhero comedy that breaks the fourth
+              wall with style.
+            </p>
+          </article>
+
+          <article class="top-item">
+            <img
+              src="https://via.placeholder.com/120x180"
+              alt="Inside Out 2 poster"
+              class="result-poster"
+            />
+            <h3>Inside Out 2</h3>
+            <p class="meta">
+              Animation • 8.1 • A heartfelt follow-up exploring new emotional
+              territory.
+            </p>
+          </article>
+
+          <article class="top-item">
+            <img
+              src="https://via.placeholder.com/120x180"
+              alt="Joker: Folie à Deux poster"
+              class="result-poster"
+            />
+            <h3>Joker: Folie à Deux</h3>
+            <p class="meta">
+              Drama • 7.8 • A bold, musical-tinged portrait that divides
+              audiences.
+            </p>
+          </article>
+
+          <article class="top-item">
+            <img
+              src="https://via.placeholder.com/120x180"
+              alt="Kingdom of the Planet of the Apes poster"
+              class="result-poster"
+            />
+            <h3>Kingdom of the Planet of the Apes</h3>
+            <p class="meta">
+              Sci‑Fi • 7.4 • A visually impressive installment with deep themes.
+            </p>
+          </article>
+
+          <article class="top-item">
+            <img
+              src="https://via.placeholder.com/120x180"
+              alt="Indie title poster"
+              class="result-poster"
+            />
+            <h3>Indie Favorite</h3>
+            <p class="meta">
+              Indie • 7.6 • A quiet character piece gaining traction at
+              festivals.
+            </p>
+          </article>
+
+          <article class="top-item">
+            <img
+              src="https://via.placeholder.com/120x180"
+              alt="Action title poster"
+              class="result-poster"
+            />
+            <h3>Summer Blockbuster</h3>
+            <p class="meta">
+              Action • 7.5 • Big stunts and bigger box office ambitions.
+            </p>
+          </article>
+
+          <article class="top-item">
+            <img
+              src="https://via.placeholder.com/120x180"
+              alt="Surprise hit poster"
+              class="result-poster"
+            />
+            <h3>Surprise Hit</h3>
+            <p class="meta">
+              Comedy • 7.3 • Low-budget charm turned into a viral sleeper hit.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <!-- FAQ -->
+      <section class="info-section">
+        <h2>Frequently Asked Questions</h2>
+
+        <h3>Are these spoilers real?</h3>
+        <p>
+          Nope! Every spoiler is 100% fake, comedic, and not connected to the
+          actual movie plot.
+        </p>
+
+        <h3>Can I share the memes?</h3>
+        <p>
+          Yes! You can save them, tweet them, or send them directly to friends
+          who haven’t seen the movie yet. And no, we don’t take responsibility
+          for the chaos that follows.
+        </p>
+
+        <h3>Is this using TMDB or other APIs?</h3>
+        <p>
+          No external APIs — just a tiny lightweight list of demo movies so the
+          app loads instantly.
+        </p>
+
+        <h3>Do you support mobile?</h3>
+        <p>
+          Absolutely. Works on phones, tablets, and probably smart
+          refrigerators.
+        </p>
+
+        <h3>Is the content appropriate?</h3>
+        <p>
+          Everything is light comedy and <strong>PG-13-ish</strong>, so you can
+          meme responsibly.
+        </p>
+      </section>
+
+      <!-- Bonus Meme Ideas -->
+      <section class="info-section">
+        <h2>Funny Movie Meme Ideas to Try</h2>
+        <p>
+          If you’re stuck, here are a few spicy prompts to inspire your next
+          masterpiece:
+        </p>
+        <ul>
+          <li>"What if the villain was just tired?"</li>
+          <li>"The hero turns into a chicken."</li>
+          <li>"Everybody dies but also learns a lesson."</li>
+          <li>"Plot twist: the main character was furniture."</li>
+          <li>"The sequel is just the same movie but louder."</li>
+        </ul>
+        <p>
+          Use these, remix them, or ignore them like Hollywood ignores original
+          scripts.
+        </p>
+      </section>
+
+      <!-- Share chaos -->
+      <section class="info-section">
+        <h2>Share the Chaos With Friends</h2>
+        <p>
+          Spoilers are fun, but
+          <strong>spoilers your friends didn’t ask for</strong> are even better.
+        </p>
+        <p>
+          Download the meme, blast it on social media, or drop it in a group
+          chat at 2 AM. It’s harmless pranking with maximum confusion
+          efficiency.
+        </p>
+        <p>
+          If someone asks, just say, “Trust me, this happens in the director’s
+          cut.”
+        </p>
+      </section>
 
       <footer>
         <div class="tmdb-attribution">

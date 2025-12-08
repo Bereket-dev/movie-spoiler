@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://trendmoviespoiler.vercel.app/sitemap.xml
