@@ -79,44 +79,12 @@ DELIVERABLE: One perfect spoiler that feels like it could go viral as a meme.
       // ignore
     }
 
-    // Minimal fallback spoiler generator so the client still receives a usable string
-    function generateFallbackSpoiler(movie, category) {
-      const title = movie?.title || "this movie";
-      const cat = category || "something wild";
-      const fallbacks = [
-        `${title}: Turns out it was all a dream (but fun).`,
-        `${title}: The villain was just misunderstood.`,
-        `${title}: Someone forgot to check the map.`,
-        `${title}: They solved it by sending a text.`,
-        `${title}: This scene explains everything (not really).`,
-        `${title}: The secret was in plain sight the whole time.`,
-        `${title}: You won't believe how mildly surprising this is.`,
-      ];
-      return `${cat} — ${
-        fallbacks[Math.floor(Math.random() * fallbacks.length)]
-      }`;
-    }
-
-    // Attempt to parse the incoming request body to build a better fallback
-    let body = {};
-    try {
-      body = await req.json();
-    } catch (e) {
-      // ignore
-    }
-
-    const fallback = generateFallbackSpoiler(
-      body.movie || {},
-      body.category || "Clickbait"
-    );
-
     const headers = { "Content-Type": "application/json" };
     if (retryAfter) headers["Retry-After"] = String(retryAfter);
 
-    // Return a 200 with a fallback `spoiler` so the client can continue gracefully.
     return Response.json(
-      { spoiler: fallback, error: "AI failed", detail },
-      { status: 200, headers }
+      { error: "AI failed", detail: "AI generation failed on server" },
+      { status: 500, headers }
     );
   }
 }

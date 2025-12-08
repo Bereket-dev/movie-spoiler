@@ -170,17 +170,17 @@ async function generateSpoiler(movie, categoryData) {
       body: JSON.stringify({ movie, category, description }),
     });
 
-    // If the API returns non-OK, read body and return concise warning + fallback
+    // If the API returns non-OK, throw to let caller decide fallback
     if (!response.ok) {
       const retryAfter = response.headers.get("Retry-After");
       if (retryAfter) {
         console.warn(
-          `AI temporarily unavailable — retry after ${retryAfter}s. Using fallback spoiler.`
+          `AI temporarily unavailable — retry after ${retryAfter}s.`
         );
       } else {
-        console.warn("AI temporarily unavailable — using fallback spoiler.");
+        console.warn("AI temporarily unavailable.");
       }
-      return generateFakeSpoiler(movie, selectedIndex);
+      throw new Error("Spoiler API returned non-OK");
     }
 
     // Prefer JSON, but fallback to text if parsing fails
@@ -197,16 +197,12 @@ async function generateSpoiler(movie, categoryData) {
 
     return String(out);
   } catch (err) {
-    // Minimal console output for users; keep server details out of browser console.
-    console.warn("AI unavailable, using fallback spoiler.");
-    // fallback index: prefer category match, else use selectedIndex
-    const categoryIndex =
-      typeof categoryData?.fullTitle === "string"
-        ? wheelData.findIndex((w) => w.fullTitle === categoryData.fullTitle)
-        : -1;
-
-    const fallbackIndex = categoryIndex >= 0 ? categoryIndex : selectedIndex;
-    return generateFakeSpoiler(movie, fallbackIndex);
+    // Bubble error up so the caller (spin) can choose to use the
+    // client-side fake generator. Keep console message minimal.
+    console.warn(
+      "AI unavailable, falling back to client-side spoiler generator."
+    );
+    throw err;
   }
 }
 
@@ -546,7 +542,6 @@ function generateFakeSpoiler(movie, indexOverride = selectedIndex) {
       `This ${movieTitle} fan theory will RUIN the movie for you FOREVER!`,
     ],
   ];
-
   // Try to get genre-specific spoilers if movie has genre info.
   // TMDB can return `genres` as an array of strings or objects
   // (e.g. [{id, name}, ...]). Be defensive about the shape.
