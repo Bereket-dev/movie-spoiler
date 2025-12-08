@@ -28,7 +28,9 @@ let selectedIndex = -1;
 // --------------------------------------------------
 async function loadMovies(timeWindow = "week") {
   try {
-    const res = await fetch(`/api/movies?time=${encodeURIComponent(timeWindow)}`);
+    const res = await fetch(
+      `/api/movies?time=${encodeURIComponent(timeWindow)}`
+    );
 
     const json = await res.json();
     movies = json.results || [];
@@ -833,6 +835,7 @@ if (timeWindowSelect) {
     const val = e.target.value || "week";
     // Reload movies using selected time window (week/day)
     loadMovies(val);
+    renderTrending();
   });
 }
 
