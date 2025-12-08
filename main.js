@@ -31,8 +31,7 @@ async function loadMovies() {
     const res = await fetch("/api/movies");
 
     const json = await res.json();
-    // Use top 6 movies for the grid
-    movies = json.results.slice(0, 6);
+    movies = json.results;
 
     renderMovies();
     renderTrending();
