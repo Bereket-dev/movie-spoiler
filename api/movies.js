@@ -1,10 +1,17 @@
 export default async function handler(req, res) {
   const TMDB_API_KEY = process.env.TMDB_API_KEY;
-  const reqTimeWindow = req.time || "week";
+
+  // Determine time window from query string (`time`), default to 'week'
+  let timeWindow = "week";
+  try {
+    const u = new URL(req.url, "http://localhost");
+    const t = u.searchParams.get("time");
+    if (t === "day" || t === "week") timeWindow = t;
+  } catch (e) {
+    // ignore and use default
+  }
 
   try {
-    const timeWindow = reqTimeWindow;
-
     if (!TMDB_API_KEY)
       throw new Error({ error: "TMDB API key not configured." });
 

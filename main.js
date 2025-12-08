@@ -26,12 +26,12 @@ let movies = [];
 let selectedMovie = null;
 let selectedIndex = -1;
 // --------------------------------------------------
-async function loadMovies() {
+async function loadMovies(timeWindow = "week") {
   try {
-    const res = await fetch("/api/movies");
+    const res = await fetch(`/api/movies?time=${encodeURIComponent(timeWindow)}`);
 
     const json = await res.json();
-    movies = json.results;
+    movies = json.results || [];
 
     renderMovies();
     renderTrending();
@@ -39,6 +39,8 @@ async function loadMovies() {
     spinButton.innerHTML = `<i class="fas fa-play"></i> SPIN`;
   } catch (err) {
     console.log(err, "Failed to load movies!"); // bad ux
+    // keep button disabled if loading failed
+    spinButton.disabled = true;
   }
 }
 
@@ -823,6 +825,16 @@ document
 document
   .getElementById("shareTelegramBtn")
   .addEventListener("click", shareOnTelegram);
+
+// Trending time window selector
+const timeWindowSelect = document.getElementById("timeWindowSelect");
+if (timeWindowSelect) {
+  timeWindowSelect.addEventListener("change", (e) => {
+    const val = e.target.value || "week";
+    // Reload movies using selected time window (week/day)
+    loadMovies(val);
+  });
+}
 
 // start
 loadMovies();
