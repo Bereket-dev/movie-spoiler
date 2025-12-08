@@ -569,33 +569,48 @@ h1 {
 }
 
 /* Time window select styling */
+/* Time window select styling */
 #timeWindowSelect {
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
-    background: linear-gradient(90deg, rgba(1, 180, 228, 0.12), rgba(157, 78, 221, 0.06));
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    color: #b8c1ec;
-    padding: 8px 40px 8px 14px;
+    background-color: var(--tmdb-blue);
+    /* white caret on the right using inline SVG */
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+    background-repeat: no-repeat;
+    background-position: calc(100% - 14px) center;
+    color: #ffffff;
+    padding: 8px 36px 8px 14px;
     border-radius: 999px;
     font-size: 0.95rem;
     cursor: pointer;
-    min-width: 110px;
-    position: relative;
-    background-image: linear-gradient(45deg, transparent 50%, rgba(255, 255, 255, 0.12) 50%),
-        linear-gradient(135deg, rgba(255, 255, 255, 0.12) 50%, transparent 50%);
-    background-position: calc(100% - 18px) calc(50% - 3px), calc(100% - 12px) calc(50% - 3px);
-    background-repeat: no-repeat;
+    min-width: 120px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 6px 18px rgba(1, 180, 228, 0.15);
+    transition: all 0.18s ease;
+}
+
+#timeWindowSelect:hover {
+    box-shadow: 0 8px 22px rgba(1, 180, 228, 0.18);
+    transform: translateY(-1px);
 }
 
 #timeWindowSelect:focus {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(1, 180, 228, 0.12);
-    border-color: var(--tmdb-blue);
+    box-shadow: 0 0 0 4px rgba(1, 180, 228, 0.14);
+    border-color: rgba(255, 255, 255, 0.2);
 }
 
-#timeWindowSelect:hover {
-    background: linear-gradient(90deg, rgba(1, 180, 228, 0.14), rgba(157, 78, 221, 0.08));
+/* Hint: styling <option> is limited across browsers; these rules improve appearance where supported */
+#timeWindowSelect option {
+    background: linear-gradient(90deg, var(--tmdb-blue), rgba(1, 180, 228, 0.9));
+    color: white;
+    padding: 8px;
+}
+
+/* Hide native dropdown arrow in IE/Edge */
+#timeWindowSelect::-ms-expand {
+    display: none;
 }
 
 @media (max-width: 480px) {
